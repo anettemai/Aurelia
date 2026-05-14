@@ -37,14 +37,92 @@ The database contains four main entities:
 Notes:
 - Checkout is simulated for the prototype — no external payment gateway is integrated.
 
-## Development / Local setup (overview)
-1. Clone the repository.
-2. Install dependencies for each part of the project (example: `cd Frontend && npm install`; `cd Backend && npm install`).
-3. Configure a local PostgreSQL database and set environment variables for database connection in the backend.
-4. Run any database migrations or seed scripts if present.
-5. Start backend and frontend servers (e.g. `npm start` / framework-specific start commands).
+## API Documentation
 
-Provide actual commands, ports, and environment variable names in the backend and frontend README or documentation files when available.
+### Base URL
+```
+http://localhost:5001/api
+```
+
+### Products
+- `GET /products?category={Women|Men|Accessories}` - Get products by category
+- `GET /products?category={category}&collection={1|2|3}` - Filter by collection  
+- `GET /products/:id` - Get single product details
+
+### Cart Management
+- `POST /cart/add` - Add item to cart
+- `GET /cart` - View cart contents
+- `PUT /cart/update` - Update item quantity 
+- `DELETE /cart/remove` - Remove item from cart
+
+### Orders  
+- `POST /cart/orders` - Place order (checkout)
+- `GET /orders/:id` - Get order details
+
+### Example API Usage
+```bash
+# Add item to cart
+curl -X POST http://localhost:5001/api/cart/add \
+  -H "Content-Type: application/json" \
+  -d '{"product_id": 1, "quantity": 2, "size": "M"}'
+```
+
+### Development / Local Setup
+
+### Prerequisites
+- Node.js (v14 or higher)
+- PostgreSQL (v12 or higher) 
+- Git
+
+### Backend Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd Aurelia/backend
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Database setup**
+   ```bash
+   # Create database
+   createdb aurelia_db
+   
+   # Connect and run SQL setup
+   psql -h localhost -U <your-username> -d aurelia_db
+   ```
+   
+   Import the database schema and sample data (files in `/database` folder)
+
+4. **Configure environment**
+   Create `.env` file in backend directory:
+   ```
+   PORT=5001
+   DB_HOST=localhost
+   DB_USER=<your-username>
+   DB_PASSWORD=<your-password>
+   DB_NAME=aurelia_db
+   ```
+
+5. **Start the server**
+   ```bash
+   node server.js
+   ```
+   
+   Server runs on http://localhost:5001
+
+### Frontend Setup
+```bash
+cd Aurelia/frontend
+npm install
+npm start
+```
+
+Frontend runs on http://localhost:3000
 
 ## Contributing
 Contributions, issues, and feature requests are welcome. Please open issues or pull requests in this repository and include a clear description of changes and rationale.
