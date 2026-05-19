@@ -1,10 +1,27 @@
-import React from 'react';
+import React, { useState} from 'react';
+import { Link, useLocation } from 'react-router-dom';
+
 
 function Header() {
+  const location = useLocation();
+  const isHome = location.pathname === '/';
+  const [activeDropdown, setActiveDropdown] = useState(null);
+
+  const toggleDropdown = (menu) => {
+    setActiveDropdown(activeDropdown === menu ? null : menu);
+    console.log('activeDropdown is now:', activeDropdown === menu ? null : menu);
+  };
   return (
     <header className = "main-header">
         <div className = "top-row">
-          <div className="title">AURELIA</div>
+          <Link 
+          to="/" 
+          className="title"
+          style={{ cursor: isHome ? 'default' : 'pointer' }}
+          onClick={() => setActiveDropdown(null)}
+        >
+          AURELIA
+        </Link>
           <div className="search" role="button" aria-label="Search">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <circle cx="11" cy="11" r="7"></circle>
@@ -19,11 +36,41 @@ function Header() {
             </svg>
           </div>
         </div>
-    <div className="bottom-row">
-            <a>WOMEN</a>
-            <a>MEN</a>
-            <a>ACCESSORIES</a>
+        <div className="bottom-row">
+          <a onClick={() => toggleDropdown('women')} 
+             className={activeDropdown && activeDropdown !== 'women' ? 'hidden-nav' : ''}>
+            WOMEN
+          </a>
+          <a onClick={() => toggleDropdown('men')} 
+             className={activeDropdown && activeDropdown !== 'men' ? 'hidden-nav' : ''}>
+            MEN
+          </a>
+          <a onClick={() => toggleDropdown('exclusive')} 
+             className={activeDropdown && activeDropdown !== 'exclusive' ? 'hidden-nav' : ''}>
+            EXCLUSIVE
+          </a>
         </div>
+
+        {activeDropdown && (
+          <div className={`dropdown-content ${activeDropdown}`}>
+            {activeDropdown === 'exclusive' ? (
+              <>
+                <Link to="/exclusive/ethereal-summer" onClick={() => setActiveDropdown(null)}>Ethereal Summer</Link>
+                <Link to="/exclusive/bohemic-fall" onClick={() => setActiveDropdown(null)}>Bohemic Fall</Link>
+              </>
+            ) : (
+              <>
+                <Link to={`/${activeDropdown}/fall`} onClick={() => setActiveDropdown(null)}>Fall Collection '25</Link>
+                <Link to={`/${activeDropdown}/spring`} onClick={() => setActiveDropdown(null)}>Spring Collection '26</Link>
+                <Link to={`/${activeDropdown}/summer`} onClick={() => setActiveDropdown(null)}>Summer Collection '26</Link>
+              </>
+            )}
+            <div className="view-all-wrapper">
+              <div className="view-all-line"></div>
+              <Link className="view-all-link" to={activeDropdown === 'exclusive' ? '/exclusive' : `/${activeDropdown}`} onClick={() => setActiveDropdown(null)}>VIEW ALL</Link>
+            </div>
+          </div>
+        )}
     </header>
   );
 }

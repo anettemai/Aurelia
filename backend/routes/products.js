@@ -9,6 +9,7 @@ router.get("/", async (req, res) => {
     try{
         const category = req.query.category;
         const collection = req.query.collection;
+        const keyword = req.query.keyword;
 
         // Validate if category is provided
         if (!category) {
@@ -30,6 +31,11 @@ router.get("/", async (req, res) => {
         if (collection) {
             conditions.push("collection_id = $2");
             values.push(collection);
+        }
+
+        if (keyword) {
+            conditions.push(`keyword = $${values.length + 1}`);
+            values.push(keyword);
         }
 
         // Build the final query
