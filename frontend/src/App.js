@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import CollectionPage from './pages/CollectionPage';
+import ProductDetail from './pages/ProductDetail';
 
 function App() {
   return (
@@ -16,7 +17,7 @@ function App() {
           <Route path="/:category" element={<CollectionPage />} />
           <Route path="/:category/:collection" element={<CollectionPage />} />
           <Route path="/exclusive" element={<CollectionPage />} />
-          <Route path="/exclusive/:collection" element={<CollectionPage />} />
+          <Route path="/product/:id" element={<ProductDetail/>} />
         </Routes>
         <Footer />
       </BrowserRouter>

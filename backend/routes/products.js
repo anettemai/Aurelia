@@ -12,9 +12,9 @@ router.get("/", async (req, res) => {
         const keyword = req.query.keyword;
 
         // Validate if category is provided
-        if (!category) {
+        if (!category && !keyword) {
             return res.status(400).json({
-                error: "Category parameter is required (Women, Men, or Accessories)"
+                error: "Category parameter is required (Women, Men, or Exclusive)"
             });
         }
 
@@ -24,13 +24,13 @@ router.get("/", async (req, res) => {
         let values = []; // This will store actual values
 
         if (category) {
-            conditions.push("category = $1");
+            conditions.push(`category = $${values.length + 1}`);
             values.push(category);
         }
 
         if (collection) {
-            conditions.push("collection_id = $2");
-            values.push(collection);
+            conditions.push(`collection_id = $${values.length + 1}`);
+            values.push(parseInt(collection));
         }
 
         if (keyword) {
@@ -62,14 +62,28 @@ router.get("/:id", async (req, res)  => {
     try {
 
         const id = req.params.id;
-        const result = await pool.query("SELECT * FROM products WHERE product_id = $1", [id]);
+        const productResult = await pool.query("SELECT * FROM products WHERE product_id = $1", [id]);
 
         // Check if the product exists
-        if (result.rows.length === 0) {
+        if (productResult.rows.length === 0) {
             return res.status(404).json({ error: "Product not found."});
         }
 
-        res.json({ product: result.rows[0] });
+        const imagesResult = await pool.query(
+            "SELECT image_url, is_primary FROM product_images WHERE product_id = $1 ORDER BY is_primary DESC",
+            [id]
+        );
+
+        const variantsResult = await pool.query(
+            "SELECT size, stock_quantity FROM product_variants WHERE product_id = $1 ORDER BY variant_id",
+            [id]
+        );
+
+        res.json({
+            product: productResult.rows[0],
+            images: imagesResult.rows,
+            variants: variantsResult.rows
+        });
 
     } catch (err) {
         res.status(500).json({ error: err.message });

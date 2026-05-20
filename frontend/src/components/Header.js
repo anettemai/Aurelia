@@ -37,15 +37,15 @@ function Header() {
           </div>
         </div>
         <div className="bottom-row">
-          <a onClick={() => toggleDropdown('women')} 
+          <a href="#" onClick={(e) => { e.preventDefault(); toggleDropdown('women'); }} 
              className={activeDropdown && activeDropdown !== 'women' ? 'hidden-nav' : ''}>
             WOMEN
           </a>
-          <a onClick={() => toggleDropdown('men')} 
+          <a href="#" onClick={(e) => { e.preventDefault(); toggleDropdown('men'); }} 
              className={activeDropdown && activeDropdown !== 'men' ? 'hidden-nav' : ''}>
             MEN
           </a>
-          <a onClick={() => toggleDropdown('exclusive')} 
+          <a href="#" onClick={(e) => { e.preventDefault(); toggleDropdown('exclusive'); }} 
              className={activeDropdown && activeDropdown !== 'exclusive' ? 'hidden-nav' : ''}>
             EXCLUSIVE
           </a>

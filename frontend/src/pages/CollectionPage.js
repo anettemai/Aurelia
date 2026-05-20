@@ -1,50 +1,209 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
+
+const categoryMap = {
+  women: 'Women',
+  men: 'Men',
+  accessories: 'Accessories'
+};
+
+const collectionMap = {
+  fall: 3,
+  spring: 1,
+  summer: 2
+};
+
+const exclusiveMap = {
+  'ethereal-summer': 2,
+  'bohemic-fall': 3
+};
+
+const videoMap = {
+  'women-fall': "Golf Fall.mp4",
+  'men-fall': "Golf Fall.mp4",
+  'women-spring': "Suits.mp4",
+  'ethereal-summer': "Ethereal Summer.mp4",
+  'bohemic-fall': "Bohemic Fall.mp4"
+};
+
+const heroTextMap = {
+  'women-fall': "Elegance in every movement",
+  'men-fall': "Where elegance meets outdoors",
+  'women-spring': "Tailored for the city season",
+  'bohemic-fall': "Inspired by wandering souls",
+  'ethereal-summer': "For hearts that bloom in summer"
+};
+
+const heroDescriptionMap = {
+  'ethereal-summer': "An ode to softness and light. The Ethereal Summer collection drifts between romance and ease. Flowing silhouettes, delicate textures, and natural fabrics move effortlessly with the body, capturing the warmth of sunlit afternoons and the quiet beauty of fleeting summer moments. Inspired by blooming gardens, faded memories, and the serenity of slow living, each piece embodies a refined femininity shaped by nature and timeless craftsmanship.",
+  'bohemic-fall': "Rooted in freedom and refined through craftsmanship. The Bohemic Fall collection explores the harmony between movement and texture. Earth-toned palettes, soft layering, and natural materials evoke the atmosphere of open fields and changing seasons. Relaxed yet elevated, the collection embraces a quiet sensuality — where effortless silhouettes and artisanal detail create a modern expression of bohemian luxury.",
+  'men-fall': "A study in understated sophistication. The Men's Fall Collection balances structure with ease. Tailored silhouettes, rich textures, and natural materials come together in pieces designed for movement, comfort, and longevity. Inspired by the calm elegance of autumn landscapes, the collection reflects a modern approach to luxury — refined, timeless, and consciously crafted.",
+  'women-fall': "The Women's Fall Collection explores softness through structure, combining fluid forms with refined tailoring. Earth-inspired tones, layered textures, and sustainable fabrics create a wardrobe shaped by quiet elegance and everyday ease. Designed to transition effortlessly through the season, each piece reflects a timeless femininity grounded in craftsmanship and natural beauty.",
+  'women-spring': "An exploration of modern tailoring through a softer lens, the Spring Special Edition reimagines suiting with fluidity, precision, and ease. Lightweight natural fabrics and clean silhouettes create a balance between strength and femininity, while subtle detailing introduces a sense of quiet sophistication. Designed for movement within the rhythm of the city, the collection embodies contemporary elegance with timeless intent bringing a pop of color to the everyday life."
+};
+
+const formatPrice = (price) => {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'EUR',
+    minimumFractionDigits: 2
+  }).format(price);
+};
 
 function CollectionPage() {
-    const { category, collection } = useParams();
-    const categoryMap = {
-      women: 'Women',
-      men: 'Men',
-      accessories: 'Accessories'
+  const { category: rawCategory, collection } = useParams();
+  const category = rawCategory || 'exclusive';
+
+  const videoKey = category === 'exclusive' ? collection : `${category}-${collection}`;
+  const currentVideo = videoMap[videoKey];
+  const heroText = heroTextMap[videoKey];
+  const heroDescription = heroDescriptionMap[videoKey];
+
+  const [products, setProducts] = useState([]);
+
+  // Save scroll position when leaving
+  useEffect(() => {
+    const path = window.location.pathname;
+    const handleScroll = () => {
+      sessionStorage.setItem(`scroll-${path}`, window.scrollY);
+       console.log('Saved:', window.scrollY);
     };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);  
+  }, []);
 
-    const collectionMap = {
-      fall: 3,
-      spring: 1,
-      summer: 2
-    };
+  // Restore scroll position when returning
+  useEffect(() => {
+    if (products.length === 0) return;
+    const saved = sessionStorage.getItem(`scroll-${window.location.pathname}`);
+    if (saved) {
+      setTimeout(() => {
+        window.scrollTo(0, parseInt(saved));
+        sessionStorage.removeItem(`scroll-${window.location.pathname}`);
+      }, 50);
+    }
+  }, [products]);
 
-    const exclusiveMap = {
-      'ethereal-summer': 2,
-      'bohemic-fall': 3
-    };
+  useEffect(() => {
+    let url;
 
-    const [products, setProducts] = useState([]);
+    if (category === 'exclusive') {
+      const collectionId = exclusiveMap[collection];
+      url = `http://localhost:5001/api/products?keyword=special${collectionId ? `&collection=${collectionId}` : ''}`;
+    } else {
+      const collectionId = collectionMap[collection];
+      url = `http://localhost:5001/api/products?category=${categoryMap[category]}&keyword=general${collectionId ? `&collection=${collectionId}` : ''}`;
+    }
 
-    useEffect(() => {
-      fetch(`http://localhost:5001/api/products?category=${categoryMap[category]}&collection=${collectionMap[collection]}`)
+    fetch(url)
       .then(res => res.json())
       .then(data => setProducts(data.products));
-    }, [category, collection]);
+  }, [category, collection]);
 
-      return (
-        <div>
-          <h1>{categoryMap[category]} - {collection ? `${collection} Collection` : 'All Products'}</h1>
+  const suitsIds = [35, 36];
+  const beforeSuits = products.filter(p => !suitsIds.includes(p.product_id));
+  const suits = products.filter(p => suitsIds.includes(p.product_id));
+  const isWomenSpring = category === 'women' && collection === 'spring';
+
+  const ProductMedia = ({ product }) => (
+    <div className="product-media">
+      <img
+        className="img-primary"
+        src={product.product_image_url}
+        alt={product.product_name}
+        onError={(e) => {
+          if (e.target.src.endsWith('.jpg')) {
+            e.target.src = product.product_image_url.replace('.jpg', '.png');
+          }
+        }}
+      />
+      <img
+        className="img-secondary"
+        src={`/images/products/${product.product_id}/2.jpg`}
+        alt={product.product_name}
+        onError={(e) => {
+          if (e.target.src.endsWith('.jpg')) {
+            e.target.src = `/images/products/${product.product_id}/2.png`;
+          } else {
+            e.target.closest('article').classList.add('no-hover-image');
+          }
+        }}
+      />
+    </div>
+  );
+
+  return (
+    <div>
+      {currentVideo && !isWomenSpring && (
+        <>
+          <div className="collection-hero">
+            <video className="hero-video" key={currentVideo} autoPlay muted loop playsInline>
+              <source src={encodeURI(process.env.PUBLIC_URL + `/${currentVideo}`)} type="video/mp4" />
+            </video>
+          </div>
+          {(heroText || heroDescription) && (
+            <div className="collection-intro">
+              {heroText && <h2 className="collection-tagline">{heroText}</h2>}
+              {heroDescription && <p className="collection-description">{heroDescription}</p>}
+            </div>
+          )}
+        </>
+      )}
+
+      <section className="products-section">
+        {isWomenSpring ? (
+          <>
+            <div className="products-grid">
+              {beforeSuits.map((product) => (
+                <Link key={product.product_id} to={`/product/${product.product_id}`}>
+                  <article className="product-card">
+                    <ProductMedia product={product} />
+                    <p className="category">{product.category}</p>
+                    <h3>{product.product_name}</h3>
+                    <p className="price">{formatPrice(product.price)}</p>
+                  </article>
+                </Link>
+              ))}
+            </div>
+
+            <video className="mid-video" autoPlay muted loop playsInline>
+              <source src={encodeURI(process.env.PUBLIC_URL + `/${currentVideo}`)} type="video/mp4" />
+            </video>
+            <div className="collection-intro">
+              {heroText && <h2 className="collection-tagline">{heroText}</h2>}
+              {heroDescription && <p className="collection-description">{heroDescription}</p>}
+            </div>
+
+            <div className="products-grid">
+              {suits.map((product) => (
+                <Link key={product.product_id} to={`/product/${product.product_id}`}>
+                  <article className="product-card">
+                    <ProductMedia product={product} />
+                    <p className="category">{product.category}</p>
+                    <h3>{product.product_name}</h3>
+                    <p className="price">{formatPrice(product.price)}</p>
+                  </article>
+                </Link>
+              ))}
+            </div>
+          </>
+        ) : (
           <div className="products-grid">
             {products.map((product) => (
-              <article className="product-card" key={product.product_id}>
-                <div className="product-media">
-                  <img src={product.product_image_url} alt={product.product_name} />
-                </div>
-                <p className="category">{product.category}</p>
-                <h3>{product.product_name}</h3>
-                <p className="price">${product.price}</p>
-              </article>
+              <Link key={product.product_id} to={`/product/${product.product_id}`}>
+                <article className="product-card">
+                  <ProductMedia product={product} />
+                  <p className="category">{product.category}</p>
+                  <h3>{product.product_name}</h3>
+                  <p className="price">{formatPrice(product.price)}</p>
+                </article>
+              </Link>
             ))}
           </div>
-        </div>
-);
+        )}
+      </section>
+    </div>
+  );
 }
 
 export default CollectionPage;
