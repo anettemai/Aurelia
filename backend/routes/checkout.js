@@ -78,8 +78,9 @@ router.get("/", async (req, res) => {
         }
 
         // Transform the cart to remove product_id
-        const userFriendlyCart = req.session.cart.map(item => {
+        const userCart = req.session.cart.map(item => {
             return {
+                product_id: item.product_id,
                 quantity: item.quantity,
                 price: item.price,
                 product_name: item.product_name,
@@ -89,7 +90,7 @@ router.get("/", async (req, res) => {
         });
 
         res.json({
-            cart: userFriendlyCart,
+            cart: userCart,
             total_items: req.session.cart.length
         });
 

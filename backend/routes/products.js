@@ -23,16 +23,19 @@ router.get("/", async (req, res) => {
         let conditions = [];
         let values = []; // This will store actual values
 
+        // Add conditions based on provided filters
         if (category) {
             conditions.push(`category = $${values.length + 1}`);
             values.push(category);
         }
 
+        // Only add collection filter if category is provided, since collection depends on category
         if (collection) {
             conditions.push(`collection_id = $${values.length + 1}`);
             values.push(parseInt(collection));
         }
 
+        // Add keyword search condition
         if (keyword) {
             conditions.push(`keyword = $${values.length + 1}`);
             values.push(keyword);
@@ -57,6 +60,20 @@ router.get("/", async (req, res) => {
     }
 });
 
+// GET featured products by IDs
+router.get('/featured', async (req, res) => {
+  try {
+    const ids = req.query.ids.split(',').map(Number);
+    const result = await pool.query(
+      'SELECT * FROM products WHERE product_id = ANY($1)',
+      [ids]
+    );
+    res.json({ products: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET single product by ID
 router.get("/:id", async (req, res)  => {
     try {
@@ -69,16 +86,19 @@ router.get("/:id", async (req, res)  => {
             return res.status(404).json({ error: "Product not found."});
         }
 
+        // Get product images, with primary image first
         const imagesResult = await pool.query(
             "SELECT image_url, is_primary FROM product_images WHERE product_id = $1 ORDER BY is_primary DESC",
             [id]
         );
 
+        // Get product variants (size and stock quantity)
         const variantsResult = await pool.query(
             "SELECT size, stock_quantity FROM product_variants WHERE product_id = $1 ORDER BY variant_id",
             [id]
         );
 
+        // Combine product info, images, and variants into a single response object
         res.json({
             product: productResult.rows[0],
             images: imagesResult.rows,

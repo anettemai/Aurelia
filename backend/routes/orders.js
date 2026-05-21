@@ -42,6 +42,7 @@ router.get("/:id", async (req, res) => {
             WHERE oi.order_id = $1
             `, [orderId]);
 
+        // Combine order info and items into a single response object
         res.json({
             order: {
                 order_id: orderInfo.order_id,
