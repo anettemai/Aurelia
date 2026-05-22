@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../CartContext';
 
@@ -17,6 +17,8 @@ function Header() {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [cartOpen, setCartOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const { cartCount, cart } = useCart();
 
   const toggleDropdown = (menu) => {
@@ -30,14 +32,44 @@ function Header() {
     }
   };
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const isScrolled = window.scrollY > 80;
+      setScrolled(isScrolled);
+      if (!isScrolled) {
+        setMenuOpen(false);
+        setActiveDropdown(null);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleNavClose = () => {
+    setActiveDropdown(null);
+    setMenuOpen(false);
+  };
+
   return (
     <header className="main-header">
       <div className="top-row">
+
+        {/* Hamburger — appears on scroll */}
+        <button
+          className={`hamburger-btn ${scrolled ? 'hamburger-visible' : ''} ${menuOpen ? 'menu-is-open' : ''}`}
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Menu"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
         <Link
           to="/"
           className="title"
           style={{ cursor: isHome ? 'default' : 'pointer' }}
-          onClick={() => setActiveDropdown(null)}
+          onClick={() => { setActiveDropdown(null); setMenuOpen(false); }}
         >
           AURELIA
         </Link>
@@ -111,16 +143,23 @@ function Header() {
         </div>
       </div>
 
-      <div className="bottom-row">
-        <a href="#" onClick={(e) => { e.preventDefault(); toggleDropdown('women'); }}
+      {/* Bottom nav */}
+      <div className={`bottom-row ${scrolled && !menuOpen ? 'nav-hidden' : ''}`}>
+        <a href="#"
+          onClick={(e) => { e.preventDefault(); toggleDropdown('women'); }}
+          onMouseEnter={() => { if (activeDropdown && activeDropdown !== 'women') setActiveDropdown('women'); }}
           className={activeDropdown && activeDropdown !== 'women' ? 'hidden-nav' : ''}>
           WOMEN
         </a>
-        <a href="#" onClick={(e) => { e.preventDefault(); toggleDropdown('men'); }}
+        <a href="#"
+          onClick={(e) => { e.preventDefault(); toggleDropdown('men'); }}
+          onMouseEnter={() => { if (activeDropdown && activeDropdown !== 'men') setActiveDropdown('men'); }}
           className={activeDropdown && activeDropdown !== 'men' ? 'hidden-nav' : ''}>
           MEN
         </a>
-        <a href="#" onClick={(e) => { e.preventDefault(); toggleDropdown('exclusive'); }}
+        <a href="#"
+          onClick={(e) => { e.preventDefault(); toggleDropdown('exclusive'); }}
+          onMouseEnter={() => { if (activeDropdown && activeDropdown !== 'exclusive') setActiveDropdown('exclusive'); }}
           className={activeDropdown && activeDropdown !== 'exclusive' ? 'hidden-nav' : ''}>
           EXCLUSIVE
         </a>
@@ -130,27 +169,27 @@ function Header() {
         <div className={`dropdown-content ${activeDropdown}`}>
           {activeDropdown === 'exclusive' ? (
             <>
-              <Link to="/exclusive/ethereal-summer" onClick={() => setActiveDropdown(null)}>Ethereal Summer</Link>
-              <Link to="/exclusive/bohemic-fall" onClick={() => setActiveDropdown(null)}>Bohemic Fall</Link>
+              <Link to="/exclusive/ethereal-summer" onClick={handleNavClose}>Ethereal Summer</Link>
+              <Link to="/exclusive/bohemic-fall" onClick={handleNavClose}>Bohemic Fall</Link>
             </>
           ) : (
             <>
-              <Link to={`/${activeDropdown}/fall`} onClick={() => setActiveDropdown(null)}>Fall Collection '25</Link>
-              <Link to={`/${activeDropdown}/spring`} onClick={() => setActiveDropdown(null)}>Spring Collection '26</Link>
-              <Link to={`/${activeDropdown}/summer`} onClick={() => setActiveDropdown(null)}>Summer Collection '26</Link>
+              <Link to={`/${activeDropdown}/spring`} onClick={handleNavClose}>Spring Collection '26</Link>
+              <Link to={`/${activeDropdown}/summer`} onClick={handleNavClose}>Summer Collection '26</Link>
+              <Link to={`/${activeDropdown}/fall`} onClick={handleNavClose}>Fall Collection '26</Link>
             </>
           )}
           <div className="view-all-wrapper">
             <div className="view-all-line"></div>
-            <Link className="view-all-link" to={activeDropdown === 'exclusive' ? '/exclusive' : `/${activeDropdown}`} onClick={() => setActiveDropdown(null)}>VIEW ALL</Link>
+            <Link className="view-all-link" to={activeDropdown === 'exclusive' ? '/exclusive' : `/${activeDropdown}`} onClick={handleNavClose}>VIEW ALL</Link>
           </div>
         </div>
       )}
 
-      {(activeDropdown || cartOpen) && (
-        <div 
-          className="header-overlay" 
-          onClick={() => { setActiveDropdown(null); setCartOpen(false); }}
+      {(activeDropdown || cartOpen || menuOpen) && (
+        <div
+          className="header-overlay"
+          onClick={() => { setActiveDropdown(null); setCartOpen(false); setMenuOpen(false); }}
         />
       )}
     </header>

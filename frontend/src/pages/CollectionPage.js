@@ -18,14 +18,13 @@ const exclusiveMap = {
   'bohemic-fall': 3
 };
 
-// Add video filenames here when ready — just match the key to the collection
 const videoMap = {
   'women-fall': "Golf Fall.mp4",
-  'men-fall': "Golf Fall.mp4",
-  'women-spring': null,        // Add filename when ready
-  'men-spring': null,          // Add filename when ready
-  'women-summer': null,        // Add filename when ready
-  'men-summer': null,          // Add filename when ready
+  'men-fall': "Men Fall.mp4",
+  'women-spring': "Women Spring.mp4",
+  'men-spring': "Men Spring.mp4",
+  'women-summer': "Women Summer.mp4",
+  'men-summer': "Men Summer.mp4",
   'women-spring-suits': "Suits.mp4",
   'ethereal-summer': "Ethereal Summer.mp4",
   'bohemic-fall': "Bohemic Fall.mp4"
@@ -129,7 +128,7 @@ function CollectionPage() {
       {!isWomenSpring && (
         <>
           {currentVideo && (
-            <div className="collection-hero">
+            <div className={`collection-hero ${category === 'women' && collection === 'summer' ? 'women-summer-hero' : ''}`}>
               <video className="hero-video" key={currentVideo} autoPlay muted loop playsInline>
                 <source src={encodeURI(process.env.PUBLIC_URL + `/${currentVideo}`)} type="video/mp4" />
               </video>
@@ -149,7 +148,7 @@ function CollectionPage() {
           <>
             {/* General spring text at top — add video to videoMap['women-spring'] when ready */}
             {videoMap['women-spring'] && (
-              <div className="collection-hero">
+              <div className="collection-hero women-spring-hero">
                 <video className="hero-video" autoPlay muted loop playsInline>
                   <source src={encodeURI(process.env.PUBLIC_URL + `/${videoMap['women-spring']}`)} type="video/mp4" />
                 </video>

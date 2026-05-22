@@ -60,6 +60,32 @@ router.get("/", async (req, res) => {
     }
 });
 
+// GET search results
+router.get('/search', async (req, res) => {
+  const { q } = req.query;
+  if (!q) return res.json([]);
+
+  try {
+    const terms = [q];
+    if (q.toLowerCase().endsWith('es')) terms.push(q.slice(0, -2)); // dresses → dress
+    else if (q.toLowerCase().endsWith('s')) terms.push(q.slice(0, -1)); // suits → suit
+
+    const conditions = terms
+      .map((_, i) => `(product_name ILIKE ${i + 1} OR keyword ILIKE ${i + 1})`)
+      .join(' OR ');
+    const params = terms.map(t => `%${t}%`);
+
+    const result = await pool.query(
+      `SELECT * FROM products WHERE ${conditions}`,
+      params
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Search failed' });
+  }
+});
+
 // GET featured products by IDs
 router.get('/featured', async (req, res) => {
   try {

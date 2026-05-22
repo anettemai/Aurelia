@@ -9,6 +9,7 @@ import { CartProvider } from './CartContext';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import OrderConfirmation from './pages/OrderConfirmation';
+import SearchResults from './pages/SearchResults';
 
 // The main App component that sets up the routing and layout of the application
 function App() {
@@ -26,6 +27,7 @@ function App() {
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order-confirmation" element={<OrderConfirmation />} />
+            <Route path="/search" element={<SearchResults />} />
           </Routes>
           <Footer />
         </BrowserRouter>
