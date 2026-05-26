@@ -88,11 +88,23 @@ export function CartProvider({ children }) {
       }
     };
 
+    const clearCart = async () => {
+      const res = await fetch('http://localhost:5001/api/cart/clear', {
+        credentials: 'include',
+        method: 'DELETE'
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        fetchCart();
+      }
+    };
+
 
   return (
 
     // Make cart and cartCount available to all components inside
-    <CartContext.Provider value={{ cart, cartCount, addToCart, fetchCart, removeFromCart, updateQuantity }}>
+    <CartContext.Provider value={{ cart, cartCount, addToCart, fetchCart, removeFromCart, updateQuantity, clearCart }}>
       {children}
     </CartContext.Provider>
     );

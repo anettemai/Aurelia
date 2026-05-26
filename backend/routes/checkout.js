@@ -162,6 +162,16 @@ router.delete("/remove", async (req,res) => {
     }
 });
 
+// CLEAR entire cart
+router.delete("/clear", async (req, res) => {
+    try {
+        req.session.cart = [];
+        res.json({ message: "Cart cleared successfully" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // CREATE order (place order/checkout)
 router.post("/orders", async (req,res) => {
     try {

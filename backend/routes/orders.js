@@ -7,14 +7,24 @@ router.post('/', async (req, res) => {
   const { customer_info, cart_items } = req.body;
 
   try {
-    // Create customer
-    const customerResult = await pool.query(
-      `INSERT INTO customers (customer_first_name, customer_last_name, customer_email, customer_phone_number, customer_shipping_address)
-       VALUES ($1, $2, $3, $4, $5) RETURNING customer_id`,
-      [customer_info.first_name, customer_info.last_name, customer_info.email,
-       customer_info.phone_number, customer_info.shipping_address]
+    // Check if customer exists, if not create one
+    let customerResult = await pool.query(
+      `SELECT customer_id FROM customers WHERE customer_email = $1`,
+      [customer_info.email]
     );
-    const customerId = customerResult.rows[0].customer_id;
+    
+    let customerId;
+    if (customerResult.rows.length > 0) {
+      customerId = customerResult.rows[0].customer_id;
+    } else {
+      const newCustomerResult = await pool.query(
+        `INSERT INTO customers (customer_first_name, customer_last_name, customer_email, customer_phone_number, customer_shipping_address)
+         VALUES ($1, $2, $3, $4, $5) RETURNING customer_id`,
+        [customer_info.first_name, customer_info.last_name, customer_info.email,
+         customer_info.phone_number, customer_info.shipping_address]
+      );
+      customerId = newCustomerResult.rows[0].customer_id;
+    }
 
     // Calculate total
     const total = cart_items.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);

@@ -11,7 +11,7 @@ const formatPrice = (price) => {
 };
 
 function Checkout() {
-  const { cart } = useCart();
+  const { cart, clearCart } = useCart();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -56,6 +56,8 @@ function Checkout() {
       const data = await res.json();
 
       if (res.ok) {
+        // Clear the cart after successful order
+        await clearCart();
         navigate('/order-confirmation', { state: { orderId: data.orderId, cart } });
       } else {
         console.error('Order failed:', data);
