@@ -2,65 +2,45 @@ const express = require("express");
 const pool = require('../db');
 const router = express.Router();
 
-// GET single order details
-router.get("/:id", async (req, res) => {
-    try {
-        const orderId = req.params.id;
+// POST create new order
+router.post('/', async (req, res) => {
+  const { customer_info, cart_items } = req.body;
 
-        // Get order details with customer info
-        const orderResult = await pool.query(`
-            SELECT 
-                o.order_id,
-                o.order_date, 
-                o.total_price,
-                o.order_status,
-                c.customer_first_name,
-                c.customer_last_name,
-                c.customer_email
-            FROM orders o
-            JOIN customers c ON o.customer_id = c.customer_id  
-            WHERE o.order_id = $1
-        `, [orderId]
-        );
+  try {
+    // Create customer
+    const customerResult = await pool.query(
+      `INSERT INTO customers (customer_first_name, customer_last_name, customer_email, customer_phone_number, customer_shipping_address)
+       VALUES ($1, $2, $3, $4, $5) RETURNING customer_id`,
+      [customer_info.first_name, customer_info.last_name, customer_info.email,
+       customer_info.phone_number, customer_info.shipping_address]
+    );
+    const customerId = customerResult.rows[0].customer_id;
 
-        // Check if order exists
-        if (orderResult.rows.length === 0) {
-            return res.status(404).json({ error: "Order not found!" });
-        }
+    // Calculate total
+    const total = cart_items.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
 
-        const orderInfo = orderResult.rows[0];
+    // Create order
+    const orderResult = await pool.query(
+      `INSERT INTO orders (customer_id, total_price, order_status, order_date)
+       VALUES ($1, $2, 'pending', NOW()) RETURNING order_id`,
+      [customerId, total]
+    );
+    const orderId = orderResult.rows[0].order_id;
 
-        // Get order items with product names
-        const itemsResult = await pool.query(`
-            SELECT 
-                oi.selected_size,
-                oi.quantity, 
-                oi.price_per_item,
-                p.product_name
-            FROM order_item oi
-            JOIN products p ON oi.product_id = p.product_id
-            WHERE oi.order_id = $1
-            `, [orderId]);
-
-        // Combine order info and items into a single response object
-        res.json({
-            order: {
-                order_id: orderInfo.order_id,
-                order_date: orderInfo.order_date,
-                total_price: orderInfo.total_price,
-                order_status: orderInfo.order_status,
-                customer: {
-                    first_name: orderInfo.customer_first_name,
-                    last_name:  orderInfo.customer_last_name,
-                    email: orderInfo.customer_email
-                }
-            },
-            items: itemsResult.rows
-        });
-
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+    // Insert order items
+    for (const item of cart_items) {
+      await pool.query(
+        `INSERT INTO order_item (order_id, product_id, selected_size, quantity, price_per_item)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [orderId, item.product_id, item.size, item.quantity, item.price]
+      );
     }
+
+    res.json({ orderId });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;

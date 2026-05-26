@@ -494,8 +494,8 @@ body {
 
 /* Search Results Page */
 .search-results-page {
-  padding: 15px 40px;
   min-height: 80vh;
+  padding: 130px 40px 40px;
 }
 
 .search-results-header {
@@ -1736,7 +1736,7 @@ body {
 .confirmation-page {
   max-width: 600px;
   margin: 0 auto;
-  padding: 70px 24px 80px;
+  padding: 170px 24px 80px;
   text-align: center;
 }
 
@@ -1859,6 +1859,8 @@ body {
   font-size: 11px;
   letter-spacing: 3px;
   text-transform: uppercase;
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 .confirmation-home:hover {

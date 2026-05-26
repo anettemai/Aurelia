@@ -25,35 +25,43 @@ function Checkout() {
     country: ''
   });
 
-  // Updates the form when the user types in any field
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // Sends the form data to the backend when the user submits
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevents the page from refreshing on submit
+    e.preventDefault();
 
-    const res = await fetch('http://localhost:5001/api/cart/orders', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        customer_info: {
-          first_name: form.first_name,
-          last_name: form.last_name,
-          email: form.email,
-          phone_number: form.phone_number,
-          shipping_address: `${form.shipping_address}, ${form.city}, ${form.postal_code}, ${form.country}`
-        }
-      })
-    });
+    try {
+      const res = await fetch('http://localhost:5001/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer_info: {
+            first_name: form.first_name,
+            last_name: form.last_name,
+            email: form.email,
+            phone_number: form.phone_number,
+            shipping_address: `${form.shipping_address}, ${form.city}, ${form.postal_code}, ${form.country}`
+          },
+          cart_items: cart.map(item => ({
+            product_id: item.product_id,
+            size: item.size,
+            quantity: item.quantity,
+            price: item.price
+          }))
+        })
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (res.ok) {
-      // Navigate to order confirmation with order details
-      navigate('/order-confirmation', { state: { orderId: data.orderId, cart } });
+      if (res.ok) {
+        navigate('/order-confirmation', { state: { orderId: data.orderId, cart } });
+      } else {
+        console.error('Order failed:', data);
+      }
+    } catch (err) {
+      console.error('Fetch error:', err);
     }
   };
 
@@ -62,22 +70,23 @@ function Checkout() {
   return (
     <div className="checkout-page">
 
-        <button className="back-to-cart" onClick={() => navigate('/cart')}>
-          ← Back to Cart
-        </button>
+      <button className="back-to-cart" onClick={() => navigate('/cart')}>
+        ← Back to Cart
+      </button>
 
       {/* Header */}
       <div className="checkout-header">
         <h1 className="checkout-title">Secure Checkout</h1>
         <p className="checkout-secure">
-            <img src="/Secure.svg" alt="Secure" className="checkout-icon" />
-          ENCRYPTED &amp; SECURE PAYMENT</p>
+          <img src="/Secure.svg" alt="Secure" className="checkout-icon" />
+          ENCRYPTED &amp; SECURE PAYMENT
+        </p>
       </div>
 
       <div className="checkout-layout">
 
         {/* Left: Form */}
-        <form className="checkout-form" onSubmit={handleSubmit}>
+        <form id="checkout-form" className="checkout-form" onSubmit={handleSubmit}>
 
           {/* Contact Information */}
           <div className="checkout-section">
@@ -212,7 +221,7 @@ function Checkout() {
             </div>
           </div>
 
-          <button type="submit" form="checkout-form" className="complete-order-btn" onClick={handleSubmit}>
+          <button type="submit" form="checkout-form" className="complete-order-btn">
             Complete Order
           </button>
         </div>

@@ -1,4 +1,4 @@
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const formatPrice = (price) => {
   return new Intl.NumberFormat('fr-FR', {
@@ -9,6 +9,7 @@ const formatPrice = (price) => {
 };
 
 function OrderConfirmation() {
+  const navigate = useNavigate();
   const { state } = useLocation();
   const { orderId, cart } = state;
   const total = cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
@@ -53,7 +54,7 @@ function OrderConfirmation() {
     <p className="confirmation-email">A confirmation email has been sent to your email address.</p>
     <p className="confirmation-delivery">Expected delivery: 2-5 business days</p>
 
-    <Link to="/" className="confirmation-home">Return to Home</Link>
+    <button className="confirmation-home" onClick={() => navigate('/')}>Return to Home</button>
 
   </div>
 );
