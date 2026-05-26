@@ -3,11 +3,14 @@
 Aurelia is a luxury clothing brand web application that offers designer clothing and accessories through an online shopping platform. The project is a prototype implementation of an e-commerce storefront that focuses on natural, high-quality, and eco-friendly materials while providing a minimal, luxurious user experience.
 
 ## Key features
-- Browse products by main category (Women, Men, Accessories)
-- Dropdown subcategory filtering (e.g. dresses, skirts, jeans, coats)
+- Browse products by main category (Women, Men, Exclusive)
+- Dropdown subcategory filtering (seasonal and exclusive collections)
 - Product listing and product detail pages (images, price, description, material, size guide)
 - Size selection and cart management
 - Simulated checkout with order confirmation (no real payment processing)
+
+Notes:
+- Originally planned categories: Women, Men, Accessories with clothing-type subcategories (dresses, jeans, etc.). Restructed to Women, Men, Exclusive with seasonal collections (Spring, Summer, Fall) to better reflect the luxury brand identity.
 
 ## User flow
 1. Homepage with navigation to main categories, a hero banner, and popular products.
@@ -18,9 +21,12 @@ Aurelia is a luxury clothing brand web application that offers designer clothing
 
 ## Tech stack
 - Frontend: React
-- Styling: Bootstrap
+- Styling: CSS
 - Backend: Node.js + Express.js
 - Database: PostgreSQL
+
+Notes:
+- Originally planned to use Bootstrap, opted for custom CSS to achieve a luxury aesthetic.
 
 ## Data model
 The database contains four main entities:
@@ -56,7 +62,7 @@ http://localhost:5001/api
 - `DELETE /cart/remove` - Remove item from cart
 
 ### Orders  
-- `POST /cart/orders` - Place order (checkout)
+- `POST /orders` - Place order (checkout)
 - `GET /orders/:id` - Get order details
 
 ### Example API Usage
