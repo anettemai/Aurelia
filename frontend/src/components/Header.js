@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useCart } from '../CartContext';
+import { useCart } from '../context/CartContext';
 
 const formatPrice = (price) => {
   return new Intl.NumberFormat('fr-FR', {

@@ -21,7 +21,7 @@ Notes:
 
 ## Tech stack
 - Frontend: React
-- Styling: CSS
+- Styling: Custom CSS
 - Backend: Node.js + Express.js
 - Database: PostgreSQL
 
@@ -51,27 +51,43 @@ http://localhost:5001/api
 ```
 
 ### Products
-- `GET /products?category={Women|Men|Accessories}` - Get products by category
+- `GET /products?category={Women|Men|Exclusive}` - Get products by category
 - `GET /products?category={category}&collection={1|2|3}` - Filter by collection  
-- `GET /products/:id` - Get single product details
+- `GET /products/search?q={keyword}` — Search products by name
+- `GET /products/featured?ids={1,2,3}` — Get featured products by IDs
+- `GET /products/:id` — Get single product details
 
 ### Cart Management
 - `POST /cart/add` - Add item to cart
 - `GET /cart` - View cart contents
 - `PUT /cart/update` - Update item quantity 
 - `DELETE /cart/remove` - Remove item from cart
+- `DELETE /cart/clear` — Clear entire cart
+
+Note:
+- Cart is stored server-side in Express sessions. React Context (CartContext) calls these endpoints and shares the cart state across all frontend components.
 
 ### Orders  
 - `POST /orders` - Place order (checkout)
-- `GET /orders/:id` - Get order details
 
 ### Example API Usage
 ```bash
-# Add item to cart
-curl -X POST http://localhost:5001/api/cart/add \
+# Place an order
+curl -X POST http://localhost:5001/api/orders \
   -H "Content-Type: application/json" \
-  -d '{"product_id": 1, "quantity": 2, "size": "M"}'
-```
+  -d '{
+    "customer_info": {
+      "first_name": "Jane",
+      "last_name": "Doe",
+      "email": "jane@example.com",
+      "phone_number": "+358 00 000 0000",
+      "shipping_address": "123 Main St, Helsinki, 00100, Finland"
+    },
+    "cart_items": [
+      { "product_id": 1, "size": "M", "quantity": 1, "price": "299.00" }
+    ]
+  }'
+  ```
 
 ### Development / Local Setup
 
@@ -96,13 +112,12 @@ curl -X POST http://localhost:5001/api/cart/add \
 3. **Database setup**
    ```bash
    # Create database
-   createdb aurelia_db
-   
-   # Connect and run SQL setup
-   psql -h localhost -U <your-username> -d aurelia_db
+     createdb aurelia_db
    ```
-   
-   Import the database schema and sample data (files in `/database` folder)
+
+   # Import schema
+   psql -U <your-username> -d aurelia_db < schema.sql
+
 
 4. **Configure environment**
    Create `.env` file in backend directory:

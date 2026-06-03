@@ -5,7 +5,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import CollectionPage from './pages/CollectionPage';
 import ProductDetail from './pages/ProductDetail';
-import { CartProvider } from './CartContext';
+import { CartProvider } from './context/CartContext';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import OrderConfirmation from './pages/OrderConfirmation';

@@ -4,7 +4,8 @@ import { useParams, Link } from 'react-router-dom';
 const categoryMap = {
   women: 'Women',
   men: 'Men',
-  accessories: 'Accessories'
+  accessories: 'Accessories',
+  exclusive: 'Exclusive'
 };
 
 const collectionMap = {
@@ -70,6 +71,8 @@ function CollectionPage() {
   const currentVideo = videoMap[videoKey];
   const heroText = heroTextMap[videoKey];
   const heroDescription = heroDescriptionMap[videoKey];
+
+  const isViewAll = !currentVideo && !( category === 'women' && collection === 'spring' );
 
   const [products, setProducts] = useState([]);
 
@@ -143,7 +146,15 @@ function CollectionPage() {
         </>
       )}
 
-      <section className="products-section">
+      <section className={`products-section ${isViewAll ? 'products-section--no-hero' : ''}`}>
+
+        {/* View All heading — only shown on View All pages */}
+        {isViewAll && (
+          <h1 className="view-all-heading">
+            View All of {categoryMap[category] || category.charAt(0).toUpperCase() + category.slice(1)}
+          </h1>
+        )}
+
         {isWomenSpring ? (
           <>
             {/* General spring text at top — add video to videoMap['women-spring'] when ready */}

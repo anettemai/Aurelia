@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { useCart } from '../CartContext';
+import { useCart } from '../context/CartContext';
 
 // Helper function to format price in Euros
 const formatPrice = (price) => {

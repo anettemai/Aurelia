@@ -636,7 +636,7 @@ body {
 	z-index: 1;
 	color: #fff;
 	text-align: center;
-	padding-top: 46vh;
+	padding-top: 54vh;
 }
 
 .hero-content h1 {
@@ -755,6 +755,20 @@ body {
 
 .products-section .collection-intro {
   margin-top: 0;
+}
+
+.products-section.products-section--no-hero {
+  padding-top: 80px;
+}
+
+.view-all-heading {
+  text-align: center;
+  font-family: 'Playfair Display', Didot, Georgia, serif;
+  font-weight: 100;
+  font-size: 2.3rem;
+  letter-spacing: 4px;
+  color: #393939;
+  margin-bottom: 68px;
 }
 
 .products-section {
