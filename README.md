@@ -110,31 +110,70 @@ curl -X POST http://localhost:5001/api/orders \
    ```
 
 3. **Database setup**
-   ```bash
-   # Create database
-     createdb aurelia_db
-   ```
+  ```bash
+  # Create database
+  createdb aurelia_db
 
-   # Import schema
-   psql -U <your-username> -d aurelia_db < schema.sql
+  # Import schema
+  psql -U <your-username> -d aurelia_db < schema.sql
+  ```
 
 
-4. **Configure environment**
-   Create `.env` file in backend directory:
-   ```
-   PORT=5001
-   DB_HOST=localhost
-   DB_USER=<your-username>
-   DB_PASSWORD=<your-password>
-   DB_NAME=aurelia_db
-   ```
+4. **Configure environment (local & production)**
 
-5. **Start the server**
-   ```bash
-   node server.js
-   ```
-   
-   Server runs on http://localhost:5001
+Environment variables are used to keep credentials and deploy-time configuration out of source control. This project provides `backend/.env.example` which lists the variables the backend expects. Do not commit real secrets — copy the example to a local `.env` for development.
+
+Local development (recommended)
+
+- Copy the example and edit the values locally:
+
+```bash
+cd backend
+cp .env.example .env
+# edit .env and fill in DB_PASSWORD and any other values
+```
+
+- The backend uses `dotenv` (already added to `backend/package.json`) so running the server will automatically load values from `backend/.env`.
+
+- Required variables (from `.env.example`):
+
+```
+DB_USER   # database username
+DB_PASSWORD  # database password (leave blank if not set)
+DB_HOST   # e.g. localhost
+DB_PORT   # e.g. 5432
+DB_NAME   # e.g. aurelia_db
+PORT      # optional: port the Express server listens on, default 5001
+```
+
+- You can also set variables in your shell for a single run (zsh):
+
+```bash
+export DB_USER=your_db_user
+export DB_PASSWORD=your_db_password
+export DB_HOST=localhost
+export DB_PORT=5432
+export DB_NAME=aurelia_db
+export PORT=5001
+node server.js
+```
+
+For production, set environment variables through your host/platform configuration (do not commit a `.env` file).
+
+Security & best practices
+
+- Never commit secret values. Keep `backend/.env.example` in the repo as documentation and store real secrets locally or in your CI/host platform.
+- For automated builds (CI) use the CI provider's secret storage. In production, provide secrets via your host/platform configuration rather than committing them.
+
+Start the server (local)
+
+```bash
+cd backend
+npm install      # if you haven't already
+node server.js
+```
+
+Server runs on http://localhost:5001 (or the `PORT` you set)
 
 ### Frontend Setup
 ```bash
